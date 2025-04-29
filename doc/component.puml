@@ -1,0 +1,28 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+AddElementTag(external, $legendText = "external container", $bgColor="787477")
+
+Container_Boundary(shipNav, "ship-nav service") {
+    Component(core, "Core", "", "Navigation core module")
+    Component(posAdapter, "Position adapter", "", "Position info adapter")
+    Component(shipAdapter, "Ship-control adapter", "", "Ship Control module adapter")
+    Component(netAdapter, "Network adapter", "", "Network adapter")
+}
+
+Rel(posAdapter, core, "Position data update")
+Rel(shipAdapter, core, "Ship data update")
+Rel(core, shipAdapter, "Ship control commands")
+Rel(netAdapter, core, "External commands")
+
+Container(shipControl, "ship-control", "", "ship control service", $tags="external")
+Container(shipPosition, "ship-position", "", "ship position service", $tags="external")
+Container(netHandler, "ship-net-handler", "", "ship network service", $tags="external")
+
+Rel(shipPosition, posAdapter, "Position data")
+Rel(shipControl, shipAdapter, "Ship data")
+Rel(shipAdapter, shipControl, "Ship commands")
+Rel(netHandler, netAdapter, "External commands")
+
+SHOW_LEGEND(true)
+@enduml

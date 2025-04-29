@@ -1,0 +1,53 @@
+@startuml
+state Idle
+Idle : monitoring parameters
+Idle : without controlling ship movements
+
+state Turning #lightblue
+Turning : turning to the next waypoint
+
+state Moving #lightgreen
+Moving : moving to the next waypoint
+
+state "Turning home" as Thome #lightblue
+Thome : turning to home position
+
+state "Moving home" as Mhome #lightgreen
+Mhome : moving to home position
+
+state Stopping #yellow
+Stopping : stopping the ship
+
+[*] --> Idle
+
+Idle --> Turning : navigation started
+
+Turning --> Moving : current bearing == target bearing
+
+Moving --> Turning : waypoint reached | new waypoints set
+
+Moving --> Idle : navigation stopped
+
+Moving --> Stopping : net loss with stop | last waypoint reached | waypoints cleared
+
+Turning --> Stopping : net loss with stop | waypoints cleared
+
+Stopping --> Idle : ship stopped
+
+Turning --> Idle : navigation stopped
+
+Idle --> Thome : net loss with return home
+
+Thome --> Mhome : current bearing = target bearing
+
+Turning --> Thome : net loss with return home
+
+Moving --> Thome : net loss with return home
+
+Mhome --> Stopping : home reached
+
+Thome --> Idle : navigation stopped
+
+Mhome --> Idle : navigation stopped
+
+@enduml
