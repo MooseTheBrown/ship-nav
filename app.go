@@ -27,6 +27,7 @@ func NewApp(conf *config.Config) *App {
 	logLevel, err := zerolog.ParseLevel(conf.LogLevel)
 	if err != nil {
 		fmt.Printf("Invalid logLevel: %s, error: %s", conf.LogLevel, err.Error())
+		logLevel = zerolog.InfoLevel
 	}
 
 	logger := zerolog.New(os.Stdout).With().Timestamp().Logger().Level(logLevel)

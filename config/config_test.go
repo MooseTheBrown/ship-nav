@@ -53,4 +53,7 @@ func TestConfig(t *testing.T) {
 	if conf.ShipPollingInterval() != 500 {
 		t.Errorf("Expected ship polling interval to be 500, got %d", conf.ShipPollingInterval())
 	}
+	if conf.LogLevel != "info" {
+		t.Errorf("Expected logLevel to be info, got %s", conf.LogLevel)
+	}
 }
