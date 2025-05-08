@@ -12,11 +12,11 @@ type IPCRequest struct {
 }
 
 type GPSInfoResponse struct {
-	NumSatellites int     `json:"num_satellites"`
+	NumSatellites int     `json:"numSatellites"`
 	Latitude      float64 `json:"latitude"`
 	Longitude     float64 `json:"longitude"`
-	SpeedKnots    float64 `json:"speed_knots"`
-	SpeedKm       float64 `json:"speed_km"`
+	SpeedKnots    float64 `json:"speedKnots"`
+	SpeedKm       float64 `json:"speedKm"`
 }
 
 type MagnetometerInfoResponse struct {
