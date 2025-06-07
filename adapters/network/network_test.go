@@ -78,6 +78,18 @@ func (m *mockWaypointsUpdater) SetHomeWaypoint(waypoint *model.Waypoint) {
 	m.homeWaypoint = waypoint
 }
 
+type mockPositionCalibrator struct {
+	calibration bool
+}
+
+func (m *mockPositionCalibrator) StartCalibration() {
+	m.calibration = true
+}
+
+func (m *mockPositionCalibrator) StopCalibration() {
+	m.calibration = false
+}
+
 func TestQuery(t *testing.T) {
 	msdp := &mockShipDataProvider{
 		shipData: &model.ShipData{
@@ -104,9 +116,10 @@ func TestQuery(t *testing.T) {
 	}
 	mnc := &mockNavController{}
 	mwu := &mockWaypointsUpdater{}
+	mpc := &mockPositionCalibrator{}
 	logger := zerolog.New(os.Stdout).With().Timestamp().Logger().Level(zerolog.DebugLevel)
 
-	adapter := NewAdapter(testSocket, msdp, mpdp, mwdp, mnc, mwu, &logger)
+	adapter := NewAdapter(testSocket, msdp, mpdp, mwdp, mnc, mwu, mpc, &logger)
 	go adapter.Run()
 	defer adapter.Stop()
 
@@ -191,9 +204,10 @@ func TestCommand(t *testing.T) {
 	mwdp := &mockWaypointDataProvider{}
 	mnc := &mockNavController{}
 	mwu := &mockWaypointsUpdater{}
+	mpc := &mockPositionCalibrator{}
 	logger := zerolog.New(os.Stdout).With().Timestamp().Logger().Level(zerolog.DebugLevel)
 
-	adapter := NewAdapter(testSocket, msdp, mpdp, mwdp, mnc, mwu, &logger)
+	adapter := NewAdapter(testSocket, msdp, mpdp, mwdp, mnc, mwu, mpc, &logger)
 	go adapter.Run()
 	defer adapter.Stop()
 
@@ -358,6 +372,38 @@ func TestCommand(t *testing.T) {
 	if mwu.homeWaypoint.Longitude != 44.191453 {
 		t.Errorf("Expected home waypoint longitude to be 44.191453, got %f",
 			mwu.homeWaypoint.Longitude)
+	}
+
+	rq = &Request{
+		Type: rqTypeCmd,
+		Cmd:  cmdStartCalibration,
+	}
+	resp, err = sendCommand(conn, rq)
+	if err != nil {
+		t.Fatalf("Failed to send command: %s", err.Error())
+	}
+	if resp.Status != "ok" {
+		t.Errorf("Expected ok command response status, got %s",
+			resp.Status)
+	}
+	if !mpc.calibration {
+		t.Error("Calibration flag not set after starting calibration")
+	}
+
+	rq = &Request{
+		Type: rqTypeCmd,
+		Cmd:  cmdStopCalibration,
+	}
+	resp, err = sendCommand(conn, rq)
+	if err != nil {
+		t.Fatalf("Failed to send command: %s", err.Error())
+	}
+	if resp.Status != "ok" {
+		t.Errorf("Expected ok command response status, got %s",
+			resp.Status)
+	}
+	if mpc.calibration {
+		t.Error("Calibration flag not cleared after stopping calibration")
 	}
 }
 

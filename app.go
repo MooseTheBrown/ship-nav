@@ -90,5 +90,5 @@ func (app *App) init() {
 
 	networkAdapterLogger := app.logger.With().Str("component", "network-adapter").Logger()
 	app.networkAdapter = network.NewAdapter(app.conf.NetworkSocketName(), app.theCore, app.theCore,
-		app.theCore, app.theCore, app.theCore, &networkAdapterLogger)
+		app.theCore, app.theCore, app.theCore, app.positionAdapter, &networkAdapterLogger)
 }

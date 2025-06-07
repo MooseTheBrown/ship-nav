@@ -22,11 +22,13 @@ type Adapter struct {
 	waypointsDataProvider core.WaypointDataProvider
 	navController         core.NavigationController
 	waypointsUpdater      core.WaypointsUpdater
+	positionCalibrator    core.PositionCalibrator
 }
 
 func NewAdapter(socketName string, sp core.ShipDataProvider,
 	pp core.PositionDataProvider, wp core.WaypointDataProvider,
-	nc core.NavigationController, wu core.WaypointsUpdater, logger *zerolog.Logger) *Adapter {
+	nc core.NavigationController, wu core.WaypointsUpdater,
+	pc core.PositionCalibrator, logger *zerolog.Logger) *Adapter {
 	return &Adapter{
 		socketName:            socketName,
 		conns:                 make(map[string]net.Conn),
@@ -35,6 +37,7 @@ func NewAdapter(socketName string, sp core.ShipDataProvider,
 		waypointsDataProvider: wp,
 		navController:         nc,
 		waypointsUpdater:      wu,
+		positionCalibrator:    pc,
 		logger:                logger,
 	}
 }
@@ -229,6 +232,10 @@ func (a *Adapter) handleCommand(rq *Request) ([]byte, error) {
 			Longitude: rq.Waypoints[0].Longitude,
 		}
 		a.waypointsUpdater.SetHomeWaypoint(wp)
+	case cmdStartCalibration:
+		a.positionCalibrator.StartCalibration()
+	case cmdStopCalibration:
+		a.positionCalibrator.StopCalibration()
 	}
 
 	respData, err := json.Marshal(resp)
